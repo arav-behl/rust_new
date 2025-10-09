@@ -1,49 +1,43 @@
-# Simplified Dockerfile for debugging
+# Ultra-simple Dockerfile for Render
 FROM rust:1.83-slim as builder
 
 WORKDIR /app
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y \
-    pkg-config \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Install build deps
+RUN apt-get update && \
+    apt-get install -y pkg-config libssl-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy everything
-COPY . .
+# Copy only what we need
+COPY Cargo.toml Cargo.lock ./
+COPY src ./src
 
-# Build directly
-RUN cargo build --release --bin simple_trading_engine
+# Build with verbose output
+RUN cargo build --release --bin simple_trading_engine --verbose
 
-# Runtime stage
+# Runtime
 FROM debian:bookworm-slim
 
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y \
-    ca-certificates \
-    libssl3 \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y ca-certificates libssl3 && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Copy binary
-COPY --from=builder /app/target/release/simple_trading_engine /app/simple_trading_engine
+COPY --from=builder /app/target/release/simple_trading_engine ./simple_trading_engine
 
 # Copy web assets
-COPY --from=builder /app/src/web /app/src/web
+COPY --from=builder /app/src/web ./src/web
 
-# Make sure binary is executable
-RUN chmod +x /app/simple_trading_engine
+# Make executable
+RUN chmod +x ./simple_trading_engine
 
-# Test the binary exists and runs
-RUN /app/simple_trading_engine --help 2>&1 || echo "Binary check: $?"
+# Test binary exists
+RUN ls -lah ./simple_trading_engine
 
-# Expose port
 EXPOSE 8080
-
-# Set environment
 ENV RUST_LOG=info
 ENV PORT=8080
 
-# Run the application
-CMD ["/app/simple_trading_engine"]
+CMD ["./simple_trading_engine"]
