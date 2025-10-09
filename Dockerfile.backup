@@ -1,4 +1,4 @@
-# Simplified Dockerfile for debugging
+# Build stage
 FROM rust:1.83-slim as builder
 
 WORKDIR /app
@@ -9,10 +9,16 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy everything
-COPY . .
+# Copy manifests
+COPY Cargo.toml Cargo.lock ./
 
-# Build directly
+# Build dependencies first (for caching)
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN cargo build --release
+RUN rm -rf src
+
+# Copy actual source
+COPY src ./src
 RUN cargo build --release --bin simple_trading_engine
 
 # Runtime stage
@@ -26,17 +32,11 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copy binary
+# Copy binary from builder
 COPY --from=builder /app/target/release/simple_trading_engine /app/simple_trading_engine
 
 # Copy web assets
-COPY --from=builder /app/src/web /app/src/web
-
-# Make sure binary is executable
-RUN chmod +x /app/simple_trading_engine
-
-# Test the binary exists and runs
-RUN /app/simple_trading_engine --help 2>&1 || echo "Binary check: $?"
+COPY src/web /app/src/web
 
 # Expose port
 EXPOSE 8080
@@ -46,4 +46,4 @@ ENV RUST_LOG=info
 ENV PORT=8080
 
 # Run the application
-CMD ["/app/simple_trading_engine"]
+CMD ["./simple_trading_engine"]
