@@ -1,0 +1,25 @@
+/.claude
+/CLAUDE.MD
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Rust builds & tooling
+target/
+**/target/
+Cargo.lock            # (keep this if you’re building an app; ignore if library)
+**/*.rs.bk
+**/.fingerprint/
+**/incremental/
+**/*.dSYM/
+
+# Tests/bench artifacts
+**/criterion/
+
+# Python/node if present
+__pycache__/
+.venv/
+node_modules/
+dist/
+build/

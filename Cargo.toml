@@ -1,0 +1,94 @@
+[package]
+name = "orderbook-engine"
+version = "0.1.0"
+edition = "2021"
+authors = ["Arav Behl <behlarav@gmail.com>"]
+description = "High-Performance Order Book & Market Making Engine for Cryptocurrency Trading"
+repository = "https://github.com/aravbehl/wintermute-orderbook-engine"
+license = "MIT"
+
+# [lib]
+# path = "src/lib.rs"
+
+[dependencies]
+# Core async runtime
+tokio = { version = "1.0", features = ["full"] }
+tokio-tungstenite = { version = "0.20", features = ["native-tls"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+futures-util = "0.3"
+
+# High-performance data structures
+dashmap = "5.5"
+crossbeam = "0.8"
+crossbeam-channel = "0.5"
+parking_lot = "0.12"
+
+# Numerical types
+rust_decimal = { version = "1.33", features = ["serde-with-str"] }
+ordered-float = "4.0"
+
+# Memory mapping
+memmap2 = "0.9"
+
+# Networking and HTTP
+reqwest = { version = "0.11", features = ["json"] }
+url = "2.4"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging and metrics
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+metrics = "0.22"
+metrics-exporter-prometheus = "0.12"
+
+# Configuration
+config = "0.13"
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# Redis for pub/sub
+redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
+
+# Web server for API
+axum = { version = "0.7", features = ["ws"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "fs", "trace"] }
+async-trait = "0.1"
+
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+# Performance profiling
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[dev-dependencies]
+proptest = "1.0"
+tempfile = "3.0"
+
+# [[bin]]
+# name = "engine"
+# path = "src/main.rs"
+
+# [[bin]]
+# name = "simple_engine"
+# path = "src/main_simple.rs"
+
+# [[bench]]
+# name = "orderbook_bench"
+# harness = false
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.bench]
+debug = true

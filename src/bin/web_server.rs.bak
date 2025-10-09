@@ -1,0 +1,44 @@
+use std::sync::Arc;
+use wintermute_orderbook_engine::{TradingEngine, web::create_router};
+
+#[tokio::main]
+async fn main() {
+    println!("🚀 Starting Wintermute Order Book Web Interface...");
+    println!("========================================================");
+
+    // Initialize the trading engine
+    let engine = Arc::new(TradingEngine::new());
+
+    // Create the web server router
+    let app = create_router(engine);
+
+    // Bind to localhost:3000
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
+        .await
+        .expect("Failed to bind to port 3000");
+
+    println!("🌐 Web interface running at: http://localhost:3000");
+    println!("🔧 Features available:");
+    println!("   • Real-time order book visualization");
+    println!("   • Interactive order submission");
+    println!("   • Live performance metrics");
+    println!("   • WebSocket streaming updates");
+    println!();
+    println!("📊 API Endpoints:");
+    println!("   • POST /api/order - Submit orders");
+    println!("   • GET /api/stats - Performance statistics");
+    println!("   • GET /api/orderbook/:symbol - Order book data");
+    println!("   • GET /ws - WebSocket connection");
+    println!();
+    println!("🎯 Perfect for demonstrating to recruiters:");
+    println!("   ✅ Sub-microsecond latency tracking");
+    println!("   ✅ Real-time market data visualization");
+    println!("   ✅ Professional web interface");
+    println!("   ✅ Interactive order matching demo");
+    println!();
+
+    // Start the server
+    axum::serve(listener, app)
+        .await
+        .expect("Failed to start server");
+}

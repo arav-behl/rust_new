@@ -1,0 +1,50 @@
+pub mod types;
+pub mod utils;
+pub mod engine;
+pub mod web;
+pub mod services;
+pub mod api;
+pub mod exchange;
+pub mod orderbook;
+
+pub use types::{
+    // Re-export all types from types modules
+    order::*, execution::*, market::*, metrics::*
+};
+pub use utils::{
+    // Re-export all from utils including LatencyDistribution
+    latency::*, memory::*, sparse_vector::*
+};
+pub use engine::*;
+
+pub mod error {
+    use thiserror::Error;
+
+    #[derive(Error, Debug)]
+    pub enum EngineError {
+        #[error("Invalid order: {0}")]
+        InvalidOrder(String),
+
+        #[error("Order not found: {0}")]
+        OrderNotFound(String),
+
+        #[error("Internal error: {0}")]
+        Internal(String),
+
+        #[error("Network error: {0}")]
+        Network(#[from] reqwest::Error),
+
+        #[error("Serialization error: {0}")]
+        Serialization(#[from] serde_json::Error),
+
+        #[error("WebSocket error: {0}")]
+        WebSocket(String),
+
+        #[error("Memory mapping error: {0}")]
+        MemoryMapping(String),
+    }
+
+    pub type Result<T> = std::result::Result<T, EngineError>;
+}
+
+pub use error::{EngineError, Result};

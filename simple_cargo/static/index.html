@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Trading Engine</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">Live Trading Engine</h1>
+                <div class="status-indicator">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="connectionStatus">Connecting...</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="trading-dashboard">
+                <!-- Live Market Data -->
+                <section class="market-data">
+                    <h2>Live Market Data</h2>
+                    <div class="price-grid" id="priceGrid">
+                        <div class="price-card" data-symbol="BTCUSDT">
+                            <div class="symbol">BTC/USDT</div>
+                            <div class="price" id="price-BTCUSDT">--</div>
+                            <div class="change" id="change-BTCUSDT">--</div>
+                        </div>
+                        <div class="price-card" data-symbol="ETHUSDT">
+                            <div class="symbol">ETH/USDT</div>
+                            <div class="price" id="price-ETHUSDT">--</div>
+                            <div class="change" id="change-ETHUSDT">--</div>
+                        </div>
+                        <div class="price-card" data-symbol="ADAUSDT">
+                            <div class="symbol">ADA/USDT</div>
+                            <div class="price" id="price-ADAUSDT">--</div>
+                            <div class="change" id="change-ADAUSDT">--</div>
+                        </div>
+                        <div class="price-card" data-symbol="SOLUSDT">
+                            <div class="symbol">SOL/USDT</div>
+                            <div class="price" id="price-SOLUSDT">--</div>
+                            <div class="change" id="change-SOLUSDT">--</div>
+                        </div>
+                        <div class="price-card" data-symbol="DOTUSDT">
+                            <div class="symbol">DOT/USDT</div>
+                            <div class="price" id="price-DOTUSDT">--</div>
+                            <div class="change" id="change-DOTUSDT">--</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Order Placement -->
+                <section class="trading-panel">
+                    <h2>Place Order</h2>
+                    <form class="order-form" id="orderForm">
+                        <div class="form-group">
+                            <label for="symbol">Symbol</label>
+                            <select id="symbol" name="symbol" required>
+                                <option value="BTCUSDT">BTC/USDT</option>
+                                <option value="ETHUSDT">ETH/USDT</option>
+                                <option value="ADAUSDT">ADA/USDT</option>
+                                <option value="SOLUSDT">SOL/USDT</option>
+                                <option value="DOTUSDT">DOT/USDT</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="side">Side</label>
+                            <select id="side" name="side" required>
+                                <option value="buy">Buy</option>
+                                <option value="sell">Sell</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantity">Quantity</label>
+                            <input type="number" id="quantity" name="quantity" step="0.00001" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price (Optional - Market Order if empty)</label>
+                            <input type="number" id="price" name="price" step="0.01" min="0">
+                        </div>
+                        <button type="submit" class="submit-btn">Place Order</button>
+                    </form>
+                </section>
+
+                <!-- Portfolio Overview -->
+                <section class="portfolio">
+                    <h2>Portfolio</h2>
+                    <div class="portfolio-summary" id="portfolioSummary">
+                        <div class="portfolio-item">
+                            <span class="label">Total Value</span>
+                            <span class="value" id="totalValue">$100,000.00</span>
+                        </div>
+                        <div class="portfolio-item">
+                            <span class="label">Cash Balance</span>
+                            <span class="value" id="cashBalance">$100,000.00</span>
+                        </div>
+                        <div class="portfolio-item">
+                            <span class="label">Total P&L</span>
+                            <span class="value" id="totalPnL">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="positions" id="positions">
+                        <!-- Positions will be dynamically populated -->
+                    </div>
+                </section>
+
+                <!-- Recent Orders -->
+                <section class="orders">
+                    <h2>Recent Orders</h2>
+                    <div class="orders-table" id="ordersTable">
+                        <div class="table-header">
+                            <div class="col">Time</div>
+                            <div class="col">Symbol</div>
+                            <div class="col">Side</div>
+                            <div class="col">Quantity</div>
+                            <div class="col">Price</div>
+                            <div class="col">Status</div>
+                        </div>
+                        <div class="table-body" id="ordersBody">
+                            <!-- Orders will be dynamically populated -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

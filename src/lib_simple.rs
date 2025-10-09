@@ -1,0 +1,1 @@
+// Minimal library for simple engine - no complex dependencies
