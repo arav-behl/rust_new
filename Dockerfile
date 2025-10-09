@@ -9,8 +9,10 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Use minimal dependencies for faster builds
-COPY Cargo-minimal.toml Cargo.toml
+# Copy manifests
+COPY Cargo.toml Cargo.lock ./
+
+# Build dependencies first (for caching)
 RUN mkdir src && echo "fn main() {}" > src/main.rs
 RUN cargo build --release
 RUN rm -rf src
