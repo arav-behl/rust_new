@@ -18,10 +18,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let engine = TradingEngine::new();
 
     println!("🔗 Connecting to Binance WebSocket...");
-    engine.start_price_feeds().await?;
+    // Don't crash if WebSocket fails - let the app start anyway
+    match engine.start_price_feeds().await {
+        Ok(_) => println!("✅ WebSocket connected successfully"),
+        Err(e) => println!("⚠️  WebSocket connection failed (app will still run): {}", e),
+    }
 
     // Wait for initial data
-    tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
+    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
 
     let app = Router::new()
         .route("/", get(serve_frontend))
