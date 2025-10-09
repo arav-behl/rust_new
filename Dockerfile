@@ -6,10 +6,13 @@ WORKDIR /app
 # Copy manifests
 COPY Cargo.toml Cargo.lock ./
 
-# Copy source code
-COPY src ./src
+# Build dependencies first (for better caching)
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN cargo build --release
+RUN rm -rf src
 
-# Build the application
+# Copy actual source and build
+COPY src ./src
 RUN cargo build --release --bin simple_trading_engine
 
 # Runtime stage
