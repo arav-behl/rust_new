@@ -7,8 +7,9 @@ description = "High-Performance Order Book & Market Making Engine for Cryptocurr
 repository = "https://github.com/aravbehl/wintermute-orderbook-engine"
 license = "MIT"
 
-# [lib]
-# path = "src/lib.rs"
+[lib]
+name = "orderbook_engine"
+path = "src/lib.rs"
 
 [dependencies]
 # Core async runtime

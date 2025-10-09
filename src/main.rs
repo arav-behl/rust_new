@@ -1,17 +1,6 @@
 // Shuttle.rs deployment entry point
-use shuttle_axum::ShuttleAxum;
-use axum::{
-    extract::State,
-    response::{Html, Json},
-    routing::{get, post},
-    Router,
-};
-
-// Import everything from the binary
-#[path = "bin/simple_trading_engine.rs"]
-mod simple_engine;
-
-use simple_engine::*;
+use shuttle_axum::{ShuttleAxum, axum::{routing::{get, post}, Router}};
+use orderbook_engine::*;
 
 #[shuttle_runtime::main]
 async fn main() -> ShuttleAxum {
