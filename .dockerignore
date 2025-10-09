@@ -1,35 +1,18 @@
-# Target directory
 target/
-
-# IDE files
-.vscode/
-.idea/
-
-# Git
 .git/
 .gitignore
-
-# Documentation
 *.md
-README*
-
-# Temporary files
-*.tmp
-*.swp
-*.swo
-
-# Mac
-.DS_Store
-
-# Node modules (if any)
-node_modules/
-
-# Logs
-*.log
-
-# Environment files
+*.sh
+.dockerignore
+Dockerfile.backup
+Dockerfile.simple
+fly.toml
+Shuttle.toml
+railway.toml
+docker-compose.yml
 .env
-.env.local
-
-# Simple cargo directory
-simple_cargo/
+.env.*
+*.log
+.DS_Store
+.vscode/
+.idea/
