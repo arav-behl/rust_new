@@ -1,17 +1,21 @@
 # Build stage
-FROM rust:1.83 as builder
+FROM rust:1.83-slim as builder
 
 WORKDIR /app
 
-# Copy manifests
-COPY Cargo.toml Cargo.lock ./
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Build dependencies first (for better caching)
+# Use minimal dependencies for faster builds
+COPY Cargo-minimal.toml Cargo.toml
 RUN mkdir src && echo "fn main() {}" > src/main.rs
 RUN cargo build --release
 RUN rm -rf src
 
-# Copy actual source and build
+# Copy actual source
 COPY src ./src
 RUN cargo build --release --bin simple_trading_engine
 
@@ -24,9 +28,6 @@ RUN apt-get update && apt-get install -y \
     libssl3 \
     && rm -rf /var/lib/apt/lists/*
 
-# Create app user
-RUN useradd -m -u 1000 app
-
 WORKDIR /app
 
 # Copy binary from builder
@@ -35,17 +36,12 @@ COPY --from=builder /app/target/release/simple_trading_engine /app/simple_tradin
 # Copy web assets
 COPY src/web /app/src/web
 
-# Set ownership
-RUN chown -R app:app /app
-
-USER app
-
 # Expose port
 EXPOSE 8080
 
 # Set environment
 ENV RUST_LOG=info
-ENV RUST_BACKTRACE=1
+ENV PORT=8080
 
 # Run the application
 CMD ["./simple_trading_engine"]

@@ -474,7 +474,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/v1/depth", get(get_depth_handler))
         .with_state(engine);
 
-    let addr: SocketAddr = "0.0.0.0:8080".parse()?;
+    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+    let addr: SocketAddr = format!("0.0.0.0:{}", port).parse()?;
     println!("🌐 Server running on http://{}", addr);
     println!("📋 API Endpoints:");
     println!("   GET  /health");
