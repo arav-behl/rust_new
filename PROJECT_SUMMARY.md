@@ -11,18 +11,18 @@ A production-quality order book matching engine implemented in Rust, featuring:
 ## What This Demonstrates
 
 ### Technical Skills
-✅ **Advanced Rust**: Async/await, smart pointers (Arc/Mutex), trait systems
-✅ **Data Structures**: BTreeMap, VecDeque, HashMap for optimal performance
-✅ **Algorithms**: Price-time priority matching, FIFO queue management
-✅ **Concurrency**: Tokio runtime, concurrent task spawning, thread-safe state
-✅ **Network Programming**: WebSocket protocol, JSON parsing, reconnection logic
-✅ **Systems Design**: Clean architecture, separation of concerns, extensibility
+**Advanced Rust**: Async/await, smart pointers (Arc/Mutex), trait systems
+ **Data Structures**: BTreeMap, VecDeque, HashMap for optimal performance
+ **Algorithms**: Price-time priority matching, FIFO queue management
+ **Concurrency**: Tokio runtime, concurrent task spawning, thread-safe state
+ **Systems Design**: Clean architecture, separation of concerns, extensibility
+ **Network Programming**: WebSocket protocol, JSON parsing, reconnection logic
 
 ### Domain Knowledge
-✅ **Market Microstructure**: Order books, bid/ask spreads, market depth
-✅ **Order Types**: Limit orders, market orders, good-till-cancel
-✅ **Trade Execution**: Price-time priority, partial fills, trade generation
-✅ **Real-Time Data**: Streaming market data, ticker feeds, depth updates
+**Market Microstructure**: Order books, bid/ask spreads, market depth
+**Order Types**: Limit orders, market orders, good-till-cancel
+**Trade Execution**: Price-time priority, partial fills, trade generation
+ **Real-Time Data**: Streaming market data, ticker feeds, depth updates
 
 ## Quick Demo
 
@@ -67,14 +67,11 @@ MarketData: Arc<RwLock<Vec<MarketData>>>   // Concurrent reads
 | Test Coverage | Core matching logic |
 | Dependencies | 7 (minimal) |
 | Compilation | Zero warnings |
-| Documentation | Comprehensive |
 
-## Interview Talking Points
 
 ### 1. Order Book Design
 **"I implemented a limit order book using BTreeMap for O(log n) price level access and VecDeque for FIFO queues at each price, ensuring price-time priority matching."**
 
-- Based on professional C++ reference (Tzadiko)
 - Efficient data structure choices
 - Clean separation of concerns
 
@@ -127,72 +124,3 @@ MarketData: Arc<RwLock<Vec<MarketData>>>   // Concurrent reads
 | Concurrency | Mutex | `Arc<Mutex>` |
 | Type Safety | Templates | Traits |
 
-## Extensions for Discussion
-
-**If asked "How would you improve this?"**
-
-1. **Performance**: Lock-free data structures, thread-per-core
-2. **Features**: REST API (Axum), WebSocket server, order history
-3. **Production**: Fixed-point arithmetic, persistence (PostgreSQL), metrics
-4. **Testing**: Comprehensive unit tests, property-based testing, benchmarks
-5. **Scalability**: Multiple order books, symbol routing, load balancing
-
-## Demo Flow (2 minutes)
-
-1. **Show startup** (5s)
-   - WebSocket connection established
-   - Live price feeds streaming
-
-2. **Explain order book** (30s)
-   - BTreeMap structure
-   - Price-time priority
-   - Data structure choices
-
-3. **Show matching** (30s)
-   - Add orders to book
-   - Execute matching order
-   - Display generated trades
-
-4. **Show live data** (30s)
-   - Real Binance prices
-   - Bid/ask spreads
-   - Market depth
-
-5. **Discuss architecture** (30s)
-   - Async design
-   - Thread safety
-   - Extensibility
-
-## Why This Project is Strong
-
-### ✅ Honest Scope
-- No exaggerated claims
-- Clear about what it is/isn't
-- Based on established reference
-
-### ✅ Technical Depth
-- Professional data structures
-- Correct algorithms
-- Production patterns
-
-### ✅ Domain Relevant
-- Direct trading experience
-- Market microstructure
-- Performance-conscious
-
-### ✅ Clean Implementation
-- Well-organized code
-- Comprehensive docs
-- Easy to discuss
-
-## Resources
-
-- **GitHub**: [Repository link]
-- **C++ Reference**: [Tzadiko/Orderbook](https://github.com/Tzadiko/Orderbook)
-- **Video Tutorial**: [@TheCodingJesus](https://www.youtube.com/@TheCodingJesus)
-
-## Conclusion
-
-This project demonstrates **production-ready Rust skills** and **understanding of trading systems**, making it an excellent portfolio piece for quantitative trading and market making roles at firms like Wintermute, Jane Street, Jump Trading, etc.
-
-The focus on **clean architecture**, **correct algorithms**, and **professional practices** shows readiness for real-world trading system development.
