@@ -279,10 +279,9 @@ CMD ["trading-engine"]
 
 This architecture demonstrates:
 
-✅ **Professional code organization**
-✅ **Understanding of market microstructure**
-✅ **Async Rust best practices**
-✅ **Thoughtful data structure choices**
-✅ **Production-ready patterns** (with noted simplifications)
+ **Professional code organization**
+ **Understanding of market microstructure**
+ **Async Rust best practices**
+ **Thoughtful data structure choices**
+ **Production-ready patterns** (with noted simplifications)
 
-The design balances **clarity** and **performance**, making it an excellent portfolio piece for quantitative trading roles.
