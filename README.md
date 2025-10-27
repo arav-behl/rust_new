@@ -1,273 +1,317 @@
-# Live Cryptocurrency Trading Engine
+# High-Performance Cryptocurrency Order Book Engine
 
-**A Rust-based real-time trading system demonstrating production-grade async programming, WebSocket integration, and REST API development**
+**A Rust implementation of a professional-grade order book with real-time Binance WebSocket integration**
 
 ![Rust](https://img.shields.io/badge/rust-1.75%2B-orange)
-![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## 🎯 What This Project Demonstrates
 
-This project showcases practical Rust skills relevant to quantitative trading and high-performance systems:
+This project showcases advanced Rust programming skills relevant to quantitative trading and high-frequency trading systems:
 
-- **Async Rust**: Tokio runtime with concurrent WebSocket and HTTP tasks
-- **Real-Time Data Processing**: Live market data from Binance WebSocket streams
-- **REST API Development**: Axum web framework with JSON endpoints
-- **Concurrent State Management**: Arc/RwLock patterns for shared mutable state
-- **Error Handling**: Result types and graceful error recovery
-- **Production Patterns**: Structured logging, health checks, and graceful shutdowns
+- **High-Performance Order Book**: Price-time priority matching with O(log n) operations
+- **Real-Time Market Data**: Live WebSocket feeds from Binance
+- **Order Matching Engine**: Professional-grade limit order matching algorithm
+- **Async Rust**: Tokio-based concurrent architecture
+- **Market Microstructure**: Understanding of bid/ask spreads, order book depth, and trade execution
 
 ## 🚀 Quick Start
 
 ```bash
-# Clone and run
+# Clone the repository
 git clone <repository>
 cd rust_crypto_project
-cargo run --bin simple_trading_engine --release
 
-# Open browser to http://localhost:8080
+# Run the demo
+cargo run --release
+
+# Run tests
+cargo test
 ```
 
-## ✨ Features
+## ✨ Core Features
 
-### Real-Time Market Data Integration
-- **Live price feeds** from Binance WebSocket for BTC/USDT, ETH/USDT, SOL/USDT
-- **Order book depth** with bid/ask spreads updated every 100ms
+### 1. **Order Book Implementation**
+Inspired by the [Tzadiko C++ Orderbook](https://github.com/Tzadiko/Orderbook), implemented in Rust with:
+
+- **BTreeMap-based price levels** for efficient sorted access
+- **Price-time priority** matching algorithm (FIFO at each price level)
+- **VecDeque for order queues** at each price level
+- **Fast order lookup** with HashMap by OrderId
+- **Thread-safe** with Arc<Mutex> wrapper
+
+```rust
+// Create an order book
+let orderbook = SharedOrderBook::new("BTCUSDT".to_string());
+
+// Add orders
+let order = Order::new_limit("BTCUSDT".to_string(), OrderSide::Sell, 50000.0, 1.0);
+let trades = orderbook.add_order(order);
+
+// Query the book
+let best_bid = orderbook.best_bid();
+let spread = orderbook.spread();
+let (bids, asks) = orderbook.get_depth(10);
+```
+
+### 2. **Real-Time Market Data**
+Live WebSocket integration with Binance:
+
+- **Ticker feed**: Real-time price updates
+- **Depth feed**: Order book depth updates every 100ms
 - **Automatic reconnection** on connection loss
+- **Multiple symbols** supported (BTC, ETH, SOL, etc.)
 
-### Trading Functionality
-- **Order submission** with market and limit orders
-- **Portfolio tracking** with real-time P&L calculation
-- **Position management** with average price tracking
-- **Realistic execution** using actual bid/ask prices from order book
+### 3. **Order Matching Engine**
+Professional matching logic:
 
-### Technical Implementation
-- **Concurrent processing**: Multiple WebSocket streams handled simultaneously
-- **Shared state**: Thread-safe state management with Arc<RwLock>
-- **REST API**: Clean JSON API for order submission and portfolio queries
-- **Web interface**: Simple HTML/JS frontend for demonstration
-
-## 📡 API Endpoints
-
-### Market Data
-```bash
-GET /health                 # System health check
-GET /api/v1/prices          # Current ticker prices
-GET /api/v1/depth           # Order book depth with spreads
-```
-
-### Trading Operations
-```bash
-POST /api/v1/orders         # Submit new order
-GET  /api/v1/orders         # Order history
-GET  /api/v1/portfolio      # Portfolio with live P&L
-```
-
-### Example: Submit Order
-```bash
-curl -X POST http://localhost:8080/api/v1/orders \
-  -H "Content-Type: application/json" \
-  -d '{
-    "symbol": "BTCUSDT",
-    "side": "Buy",
-    "quantity": 0.001,
-    "price": null
-  }'
-```
+- **Price-time priority**: Orders at same price matched in time order (FIFO)
+- **Partial fills**: Support for orders that partially match
+- **Trade generation**: Automatic trade records for matched orders
+- **Best execution**: Matches against best available prices
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────┐
-│  Binance WebSocket  │
-│  (Price + Depth)    │
-└──────────┬──────────┘
-           │
-           v
-┌─────────────────────┐
-│  Trading Engine     │
-│  - Order Management │
-│  - Portfolio State  │
-│  - Market Data      │
-└──────────┬──────────┘
-           │
-           v
-┌─────────────────────┐
-│  REST API (Axum)    │
-│  - Order Submission │
-│  - Portfolio Queries│
-│  - Market Data      │
-└─────────────────────┘
+┌─────────────────────────────────────────┐
+│         Binance WebSocket               │
+│    (Ticker + Depth Feeds)               │
+└──────────────┬──────────────────────────┘
+               │
+               v
+┌─────────────────────────────────────────┐
+│         BinanceFeed                     │
+│  - Market data aggregation              │
+│  - Price/spread tracking                │
+└──────────────┬──────────────────────────┘
+               │
+               v
+┌─────────────────────────────────────────┐
+│         Order Book Engine               │
+│  - BTreeMap price levels                │
+│  - Order matching                       │
+│  - Trade generation                     │
+└─────────────────────────────────────────┘
 ```
 
-## 🛠️ Technical Stack
+## 📊 Order Book Design
 
-| Component | Technology | Purpose |
-|-----------|-----------|---------|
-| Runtime | Tokio | Async/await execution |
-| HTTP Server | Axum | REST API framework |
-| WebSocket | tokio-tungstenite | Real-time data streams |
-| Serialization | Serde | JSON encoding/decoding |
-| Concurrency | Arc/RwLock | Shared state management |
-| Time | Chrono | Timestamp handling |
+Based on the professional C++ implementation by Tzadiko, adapted to Rust:
 
-## 🎓 Rust Skills Demonstrated
+### Data Structures
 
-### 1. **Async Programming**
 ```rust
-// Concurrent WebSocket tasks
+pub struct OrderBook {
+    symbol: String,
+    bids: BTreeMap<OrderedFloat, PriceLevel>,  // Highest price first
+    asks: BTreeMap<OrderedFloat, PriceLevel>,  // Lowest price first
+    orders: HashMap<OrderId, OrderSide>,       // Fast lookup
+}
+
+pub struct PriceLevel {
+    price: f64,
+    orders: VecDeque<Order>,  // FIFO queue
+    total_quantity: f64,
+}
+```
+
+### Key Operations
+
+| Operation | Complexity | Description |
+|-----------|-----------|-------------|
+| Add Order | O(log n) | Insert into BTreeMap + match |
+| Cancel Order | O(log n) | Remove from price level |
+| Best Bid/Ask | O(1) | BTreeMap boundary access |
+| Get Depth | O(k) | Iterate k levels |
+| Match Order | O(m) | m = orders matched |
+
+## 🎓 Rust Concepts Demonstrated
+
+### 1. **Advanced Data Structures**
+```rust
+// BTreeMap for sorted price levels
+bids: BTreeMap<OrderedFloat, PriceLevel>
+
+// VecDeque for FIFO order queues
+orders: VecDeque<Order>
+
+// HashMap for fast lookup
+orders: HashMap<OrderId, OrderSide>
+```
+
+### 2. **Async/Await & Concurrency**
+```rust
+// Spawn concurrent WebSocket tasks
 tokio::spawn(async move {
     loop {
         match connect_async(&url).await {
             Ok((ws_stream, _)) => {
                 // Process messages
             }
-            Err(e) => eprintln!("Error: {}", e),
         }
-        tokio::time::sleep(Duration::from_secs(5)).await;
     }
 });
 ```
 
-### 2. **Ownership & Borrowing**
+### 3. **Smart Pointers & Thread Safety**
 ```rust
-// Proper Arc/RwLock usage for shared state
-let prices = Arc::clone(&self.current_prices);
-let mut prices_lock = prices.write().await;
-prices_lock.insert(symbol, price);
-```
-
-### 3. **Error Handling**
-```rust
-pub async fn submit_order(&self, request: OrderRequest)
-    -> Result<Order, String> {
-    // Proper Result-based error handling
+pub struct SharedOrderBook {
+    inner: Arc<Mutex<OrderBook>>,  // Thread-safe shared ownership
 }
 ```
 
-### 4. **Type Safety**
+### 4. **Type Safety & Custom Ordering**
 ```rust
-// Strong typing with Serde for JSON APIs
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Order {
-    pub id: u64,
-    pub symbol: String,
-    pub side: String,
-    pub quantity: f64,
-    pub price: Option<f64>,
-}
+// Wrapper to make f64 orderable for BTreeMap
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+struct OrderedFloat(f64);
 ```
 
 ## 💼 Resume Talking Points
 
 **For Interviews at Trading Firms:**
 
-1. **"Built a real-time trading engine in Rust that processes live market data from Binance WebSocket feeds"**
-   - Shows understanding of market data infrastructure
-   - Demonstrates async Rust and concurrent programming
+1. **"Implemented a high-performance order book in Rust with price-time priority matching"**
+   - BTreeMap for O(log n) price level access
+   - VecDeque for FIFO matching at each price
+   - Demonstrates understanding of market microstructure
 
-2. **"Implemented concurrent state management using Arc/RwLock patterns for thread-safe portfolio tracking"**
-   - Understanding of Rust's ownership model
-   - Production-ready concurrent programming
+2. **"Integrated real-time Binance WebSocket feeds for live market data"**
+   - Async Rust with Tokio
+   - Concurrent task management
+   - Production-quality error handling and reconnection logic
 
-3. **"Created REST API with Axum handling order submission, portfolio queries, and real-time P&L calculations"**
-   - Full-stack capability (backend API + data processing)
-   - Understanding of trading system requirements
+3. **"Built order matching engine with trade generation and partial fills"**
+   - Professional matching algorithm
+   - Proper fill/partial fill handling
+   - Trade record generation
 
-4. **"Integrated real-time order book depth to execute orders at realistic bid/ask prices"**
-   - Understanding of market microstructure
-   - Attention to realistic trading simulation
+4. **"Designed thread-safe concurrent architecture using Arc/Mutex patterns"**
+   - Proper Rust ownership and borrowing
+   - Safe shared mutable state
+   - Lock-based synchronization
 
-## 📚 Project Structure
+## 🛠️ Project Structure
 
 ```
 src/
-├── bin/
-│   └── simple_trading_engine.rs  # Main binary (self-contained)
-└── web/
-    └── index.html                # Frontend interface
+├── types/
+│   └── order.rs          # Order, Trade, OrderType definitions
+├── orderbook/
+│   └── book.rs           # OrderBook implementation
+├── exchange/
+│   └── binance.rs        # WebSocket integration
+├── lib.rs                # Library interface
+└── main.rs               # Demo application
 
 Key files:
-- simple_trading_engine.rs (~440 lines)
-  - TradingEngine struct with order/portfolio management
-  - WebSocket integration for live data
-  - REST API handlers
-  - Async task spawning and management
+- orderbook/book.rs (~460 lines) - Core order book with matching
+- exchange/binance.rs (~200 lines) - WebSocket data ingestion
+- types/order.rs (~150 lines) - Type definitions
 ```
 
-## 🎯 What Makes This Project Good for Resumes
+## 📈 Comparison with C++ Implementation
 
-### ✅ Honest and Verifiable
-- No exaggerated performance claims
-- Everything actually works and can be demonstrated
-- Realistic implementation scope
+| Feature | C++ (Tzadiko) | This Project (Rust) |
+|---------|---------------|---------------------|
+| Price Levels | std::map | BTreeMap |
+| Order Queue | Custom queue | VecDeque |
+| Thread Safety | Mutex | Arc<Mutex> |
+| Order Lookup | OrderId map | HashMap<OrderId> |
+| Memory Safety | Manual | Automatic (Rust) |
+| Type Safety | Templates | Generics + Traits |
+
+## 🔬 Technical Highlights
+
+### Price-Time Priority
+Orders are matched using **price-time priority**:
+1. **Price priority**: Best prices match first (highest bid, lowest ask)
+2. **Time priority**: Among orders at same price, earlier orders match first (FIFO)
+
+### Memory Efficiency
+- **Sparse data structures**: Only stores active price levels
+- **Automatic cleanup**: Empty price levels removed
+- **Smart pointers**: Arc for shared ownership, no manual memory management
+
+### Async Architecture
+- **Non-blocking**: WebSocket feeds run concurrently
+- **Tokio runtime**: Professional-grade async runtime
+- **Proper error handling**: Reconnection logic for network failures
+
+## 🎯 What Makes This Project Strong
+
+### ✅ Honest and Professional
+- Clean, well-documented code
+- Based on established C++ reference implementation
+- Realistic scope - not over-promised
 
 ### ✅ Demonstrates Real Skills
-- Production Rust patterns (not toy code)
-- Real integration with external API (Binance)
-- Proper async programming and state management
+- Professional data structure choices
+- Production-quality async patterns
+- Understanding of order book mechanics
 
 ### ✅ Relevant to Trading Firms
-- Shows understanding of market data
-- Demonstrates systems programming capability
-- Production-quality code structure
+- Direct experience with order books
+- Market data integration
+- Performance-conscious design
 
-### ✅ Easy to Discuss in Interviews
-- Clean, understandable codebase
-- Can explain design decisions
-- No black-box "magic" - everything is straightforward
+### ✅ Interview-Ready
+- Can explain every design decision
+- Prepared to discuss trade-offs
+- Clear technical depth
 
-## 🚀 Deployment
+## 📚 Learning Resources
 
-### Docker
-```bash
-docker build -t trading-engine .
-docker run -p 8080:8080 trading-engine
-```
+- **C++ Reference**: [Tzadiko/Orderbook](https://github.com/Tzadiko/Orderbook)
+- **Video Series**: [@TheCodingJesus](https://www.youtube.com/@TheCodingJesus) on YouTube
+- **Market Microstructure**: Understanding order books and matching
 
-### Railway / Render
-- Push to GitHub
-- Connect repository to Railway/Render
-- Auto-detects Rust and builds
-- Live demo URL for resume
+## 🤔 Design Decisions
 
-## 🤔 Limitations (Be Honest!)
+**Why BTreeMap instead of HashMap?**
+- Need sorted access for best bid/ask
+- Efficient iteration through price levels
+- O(log n) is acceptable for order book operations
 
-This is a **demonstration project**, not production trading software:
+**Why VecDeque for order queues?**
+- FIFO semantics for time priority
+- Efficient push_back/pop_front
+- Better cache locality than linked list
 
-- **No order matching engine**: Orders are filled immediately at market price
-- **Simplified portfolio**: Basic position tracking, no advanced risk management
-- **Single-user**: No authentication or multi-user support
-- **In-memory state**: Data lost on restart (no database persistence)
-- **Basic error handling**: Production systems need more comprehensive error recovery
+**Why Arc<Mutex> instead of lock-free?**
+- Clear, maintainable code
+- Sufficient performance for demonstration
+- Production systems could use lock-free structures
 
-**Why this is okay:** This project demonstrates Rust fundamentals and system design. Real trading systems at firms like Wintermute would have dedicated teams, extensive testing, and compliance requirements. This shows you understand the basics and can learn the advanced parts.
-
-## 📈 Future Enhancements (If Asked)
-
-1. Add PostgreSQL for persistent storage
-2. Implement proper order matching with limit order book
-3. Add authentication and user management
-4. Implement risk management and position limits
-5. Add comprehensive unit and integration tests
-6. Implement metrics and monitoring (Prometheus)
-7. Add more sophisticated market making strategies
+**Why f64 instead of Decimal?**
+- Simplicity and performance
+- Acceptable for demonstration
+- Production systems should use fixed-point arithmetic
 
 ## 📞 Interview Preparation
 
 ### Be Ready to Explain:
-1. **Why Rust?** Memory safety without garbage collection, great for low-latency systems
-2. **Arc vs Rc?** Arc is atomic (thread-safe), Rc is not
-3. **Why RwLock?** Multiple readers, single writer - good for frequently-read state
-4. **Async vs threads?** Async is lighter weight for I/O-bound tasks like network
-5. **How does error handling work?** Result types, ? operator, proper error propagation
+
+1. **Order matching algorithm**: Price-time priority, FIFO at each level
+2. **BTreeMap choice**: O(log n) sorted access, efficient best bid/ask
+3. **Async design**: Tokio for concurrent WebSocket handling
+4. **Thread safety**: Arc<Mutex> for shared state across tasks
+5. **Trade-offs**: Simplicity vs. maximum performance
 
 ### Code Walkthrough:
-- Be able to explain the WebSocket connection code
-- Explain how Arc/RwLock provides thread safety
-- Walk through order execution logic
-- Discuss trade-offs in design decisions
+- Explain the OrderBook::match_order() logic
+- Walk through add_order() and trade generation
+- Discuss WebSocket message handling
+- Explain SharedOrderBook thread-safety
 
 ---
 
-**Built with Rust 🦀 | Demonstrates production-ready async programming and real-time data processing**
+**Built with Rust 🦀 | Demonstrates production-ready order book implementation and market data integration**
 
+## 📝 License
+
+MIT License - see LICENSE file for details
+
+## 🙋 Questions?
+
+This project demonstrates core skills for quantitative trading and market making roles. The clean architecture and professional implementation show understanding of both Rust systems programming and financial market microstructure.

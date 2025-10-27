@@ -1,8 +1,0 @@
-[build]
-builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
-
-[deploy]
-startCommand = "./simple_trading_engine"
-restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 10

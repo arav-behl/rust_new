@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
-use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+/// Unique identifier for an order
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct OrderId(pub u64);
 
@@ -19,18 +19,25 @@ impl Default for OrderId {
     }
 }
 
+/// Order side (Buy or Sell)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum OrderSide {
     Buy,
     Sell,
 }
 
+/// Order type
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum OrderType {
+    /// Market order - executes immediately at best available price
     Market,
+    /// Limit order - executes only at specified price or better
     Limit,
+    /// Good-till-cancel - remains in book until filled or cancelled
+    GoodTillCancel,
 }
 
+/// Order status
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum OrderStatus {
     Pending,
@@ -40,59 +47,108 @@ pub enum OrderStatus {
     Rejected,
 }
 
+/// Core order structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Order {
     pub id: OrderId,
-    pub client_id: String,
     pub symbol: String,
     pub side: OrderSide,
     pub order_type: OrderType,
-    pub quantity: Decimal,
-    pub price: Option<Decimal>,
-    pub filled_quantity: Decimal,
+    pub price: f64,
+    pub initial_quantity: f64,
+    pub remaining_quantity: f64,
     pub status: OrderStatus,
     pub timestamp: DateTime<Utc>,
-    pub last_update: DateTime<Utc>,
 }
 
 impl Order {
-    pub fn new(
-        client_id: String,
-        symbol: String,
-        side: OrderSide,
-        order_type: OrderType,
-        quantity: Decimal,
-        price: Option<Decimal>,
-    ) -> Self {
+    pub fn new_limit(symbol: String, side: OrderSide, price: f64, quantity: f64) -> Self {
         Self {
             id: OrderId::new(),
-            client_id,
             symbol,
             side,
-            order_type,
-            quantity,
+            order_type: OrderType::Limit,
             price,
-            filled_quantity: Decimal::ZERO,
+            initial_quantity: quantity,
+            remaining_quantity: quantity,
             status: OrderStatus::Pending,
             timestamp: Utc::now(),
-            last_update: Utc::now(),
         }
     }
 
-    pub fn remaining_quantity(&self) -> Decimal {
-        self.quantity - self.filled_quantity
+    pub fn new_market(symbol: String, side: OrderSide, quantity: f64) -> Self {
+        Self {
+            id: OrderId::new(),
+            symbol,
+            side,
+            order_type: OrderType::Market,
+            price: 0.0, // Market orders don't have a price
+            initial_quantity: quantity,
+            remaining_quantity: quantity,
+            status: OrderStatus::Pending,
+            timestamp: Utc::now(),
+        }
     }
 
-    pub fn is_fully_filled(&self) -> bool {
-        self.filled_quantity >= self.quantity
+    /// Fill the order with the specified quantity
+    pub fn fill(&mut self, quantity: f64) {
+        self.remaining_quantity -= quantity;
+        if self.remaining_quantity <= 0.0 {
+            self.remaining_quantity = 0.0;
+            self.status = OrderStatus::Filled;
+        } else {
+            self.status = OrderStatus::PartiallyFilled;
+        }
     }
 
-    pub fn can_match(&self, market_price: Decimal) -> bool {
-        match (&self.order_type, &self.side, self.price) {
-            (OrderType::Market, _, _) => true,
-            (OrderType::Limit, OrderSide::Buy, Some(limit_price)) => limit_price >= market_price,
-            (OrderType::Limit, OrderSide::Sell, Some(limit_price)) => limit_price <= market_price,
-            _ => false,
+    pub fn is_filled(&self) -> bool {
+        self.remaining_quantity <= 0.0
+    }
+
+    pub fn filled_quantity(&self) -> f64 {
+        self.initial_quantity - self.remaining_quantity
+    }
+
+    /// Check if this order can match with the given price
+    pub fn can_match(&self, market_price: f64) -> bool {
+        match (self.order_type, self.side) {
+            (OrderType::Market, _) => true,
+            (OrderType::Limit, OrderSide::Buy) | (OrderType::GoodTillCancel, OrderSide::Buy) => {
+                self.price >= market_price
+            }
+            (OrderType::Limit, OrderSide::Sell) | (OrderType::GoodTillCancel, OrderSide::Sell) => {
+                self.price <= market_price
+            }
+        }
+    }
+}
+
+/// Trade information resulting from order matching
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Trade {
+    pub maker_order_id: OrderId,
+    pub taker_order_id: OrderId,
+    pub symbol: String,
+    pub price: f64,
+    pub quantity: f64,
+    pub timestamp: DateTime<Utc>,
+}
+
+impl Trade {
+    pub fn new(
+        maker_order_id: OrderId,
+        taker_order_id: OrderId,
+        symbol: String,
+        price: f64,
+        quantity: f64,
+    ) -> Self {
+        Self {
+            maker_order_id,
+            taker_order_id,
+            symbol,
+            price,
+            quantity,
+            timestamp: Utc::now(),
         }
     }
 }
